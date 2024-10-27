@@ -144,7 +144,7 @@ def day_view(date):
     return render_template('day.html',
                          date=date,
                          tasks=day_tasks,
-                         categories=default_categories)
+                         categories=default_categories, logged_in=session.get('user_id') is not None)
 
 @app.route('/add_task', methods=['POST'])
 @login_required
