@@ -50,11 +50,19 @@ class TaskMonitor:
         Returns:
             str: AI-generated roast message with solutions
         """
-        prompt = (
-            f"I missed - {task_name} ({category}). "
-            "Roast me really badly based on me missing the event. "
-            "Then give me possible solutions. Give a few good solutions and few joke solutions. Don't differentiate between the good and joke ones. Just put them all in one list."
-        )
+
+        if category == "assignment":
+            prompt = (
+                f"I missed - {task_name} ({category}). "
+                "Roast me really badly based on me missing the event. "
+                "Then give me possible solutions. Give a few good solutions and few joke solutions. Don't differentiate between the good and joke ones. Just put them all in one list. If category is assignment, also give sample format for email to send to professor asking for extention."
+            )
+        else:
+            prompt = (
+                f"I missed - {task_name} ({category}). "
+                "Roast me really badly based on me missing the event. "
+                "Then give me possible solutions. Give a few good solutions and few joke solutions. Don't differentiate between the good and joke ones. Just put them all in one list."
+            )
         
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -140,8 +148,8 @@ if __name__ == "__main__":
 
     # Add some sample tasks
     monitor.add_task(
-        task_name="birthday",
-        category="social",
+        task_name="math hw",
+        category="assignment",
         due_date="2024-10-26",
         due_time="14:30"
     )
@@ -149,8 +157,8 @@ if __name__ == "__main__":
     monitor.add_task(
         task_name="do laundry",
         category="chores",
-        due_date="2024-10-26",
-        due_time="11:00"
+        due_date="2024-10-27",
+        due_time="00:00"
     )
 
     # Start monitoring
