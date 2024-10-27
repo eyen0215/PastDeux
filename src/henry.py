@@ -105,9 +105,11 @@ class Database:
     def get_user_tasks(self, user_id):
         """Retrieve all tasks for a specific user."""
         try:
-            tasks_ref = self.db.collection('users').document(user_id).collection('tasks')
+            user = self.db.collection('users').document(user_id)
+            tasks_ref = user.collection('tasks')
+            user_email = user.get().to_dict().get('email')
             tasks = tasks_ref.stream()
-            return [{**task.to_dict(), 'id': task.id} for task in tasks]
+            return [{**task.to_dict(), 'id': task.id, 'email': user_email} for task in tasks]
         except Exception as e:
             print("Error retrieving tasks:", e)
             return []
@@ -115,7 +117,9 @@ class Database:
     def get_calendar(self, user_id):
         """Retrieve all tasks for a specific user."""
         try:
-            tasks_ref = self.db.collection('users').document(user_id).collection('tasks')
+            user = self.db.collection('users').document(user_id)
+            tasks_ref = user.collection('tasks')
+            user_email = user.get().to_dict().get('email')
             tasks = tasks_ref.stream()
             task_dict = [{**task.to_dict(), 'id': task.id} for task in tasks]
             task_list = []
@@ -123,7 +127,7 @@ class Database:
                 if task['completed'] == True or task['overdue'] == True:
                     continue
                 due_date, due_time = task['due_date'].split('T')
-                task_list.append([task['description'], task['type'], due_date, due_time, user_id, task['id']])
+                task_list.append([task['description'], task['type'], due_date, due_time, user_id, task['id'], user_email])
             return task_list
         except Exception as e:
             print("Error retrieving tasks:", e)
