@@ -107,6 +107,8 @@ class Database:
             task_dict = [{**task.to_dict(), 'id': task.id} for task in tasks]
             task_list = []
             for task in task_dict:
+                if task['completed'] == True:
+                    continue
                 due_date, due_time = task['due_date'].split('T')
                 task_list.append([task['description'], task['type'], due_date, due_time])
             return task_list
