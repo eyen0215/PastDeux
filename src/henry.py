@@ -140,5 +140,15 @@ class Database:
     def set_overdue(self, user_id, task_id):
         """Set a task as overdue."""
         return self.update_task(user_id, task_id, {'overdue': True})
+    
+    def get_user_ids(self):
+        """Retrieve all user IDs from Firestore."""
+        try:
+            users_ref = self.db.collection('users')
+            users = users_ref.stream()
+            return [user.id for user in users]
+        except Exception as e:
+            print("Error retrieving user IDs:", e)
+            return []
         
 
