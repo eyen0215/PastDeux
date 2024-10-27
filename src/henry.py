@@ -98,6 +98,23 @@ class Database:
         except Exception as e:
             print("Error retrieving tasks:", e)
             return []
+    
+    def get_calendar(self, user_id):
+        """Retrieve all tasks for a specific user."""
+        try:
+            tasks_ref = self.db.collection('users').document(user_id).collection('tasks')
+            tasks = tasks_ref.stream()
+            task_dict = [{**task.to_dict(), 'id': task.id} for task in tasks]
+            task_list = []
+            for task in task_dict:
+                if task['completed'] == True:
+                    continue
+                due_date, due_time = task['due_date'].split('T')
+                task_list.append([task['description'], task['type'], due_date, due_time])
+            return task_list
+        except Exception as e:
+            print("Error retrieving tasks:", e)
+            return []
 
     def update_task(self, user_id, task_id, updates):
         """Update a specific task for a user."""
