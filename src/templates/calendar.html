@@ -62,15 +62,15 @@
                 {% for task in sorted_tasks %}
                 {% if not task.completed %}
                 <div class="task-item p-3 border rounded-lg hover:bg-gray-50"
-                     style="border-left-width: 4px; border-left-color: {{ task.color }}">
+                    style="border-left-width: 4px; border-left-color: {{ task.color }}">
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-sm font-medium" style="color: {{ task.color }}">
                             {{ task.type }}
                         </span>
                         <input type="checkbox" 
-                               class="h-4 w-4 text-blue-600 rounded"
-                               {% if task.completed %}checked{% endif %}
-                               onchange="toggleTask({{ task.id }})">
+                            class="h-4 w-4 text-blue-600 rounded"
+                            {% if task.completed %}checked{% endif %}
+                            onchange="toggleTask('{{ task.id }}')">
                     </div>
                     <p class="text-sm text-gray-800 mb-1">{{ task.description }}</p>
                     <div class="flex items-center text-xs text-gray-500">
@@ -101,15 +101,15 @@
                     {% for task in sorted_tasks %}
                     {% if task.completed %}
                     <div class="task-item p-3 border rounded-lg hover:bg-gray-50 opacity-60"
-                         style="border-left-width: 4px; border-left-color: {{ task.color }}">
+                        style="border-left-width: 4px; border-left-color: {{ task.color }}">
                         <div class="flex items-center justify-between mb-1">
                             <span class="text-sm font-medium line-through" style="color: {{ task.color }}">
                                 {{ task.type }}
                             </span>
                             <input type="checkbox" 
-                                   class="h-4 w-4 text-blue-600 rounded"
-                                   checked
-                                   onchange="toggleTask({{ task.id }})">
+                                class="h-4 w-4 text-blue-600 rounded"
+                                checked
+                                onchange="toggleTask('{{ task.id }}')">
                         </div>
                         <p class="text-sm text-gray-800 mb-1 line-through">{{ task.description }}</p>
                         <div class="flex items-center text-xs text-gray-500">
@@ -161,7 +161,12 @@ function toggleTask(taskId) {
     .then(data => {
         if (data.success) {
             location.reload();
+        } else {
+            console.error('Failed to toggle task:', data.error);
         }
+    })
+    .catch(error => {
+        console.error('Error toggling task:', error);
     });
 }
 </script>

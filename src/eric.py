@@ -177,7 +177,6 @@ def add_task():
 @login_required
 def toggle_task(task_id):
     user_id = session.get('user_id')
-    # Get current task state
     tasks = database.get_user_tasks(user_id)
     task = next((t for t in tasks if t['id'] == task_id), None)
     
