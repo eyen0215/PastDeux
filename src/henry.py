@@ -1,9 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from firebase_admin import credentials, auth, firestore, initialize_app
 import os
 from dotenv import load_dotenv
 from functools import wraps
 import pyrebase
+from datetime import datetime
+
 
 
 class Database:
@@ -69,4 +71,52 @@ class Database:
         except Exception as e:
             print("Error registering user:", e)
             return None
+    def add_task(self, user_id, task_data):
+        """Add a task to Firestore for a specific user."""
+        try:
+            tasks_ref = self.db.collection('users').document(user_id).collection('tasks')
+            new_task = tasks_ref.add({
+                'type': task_data['type'],
+                'description': task_data['description'],
+                'due_date': task_data['due_date'],
+                'color': task_data['color'],
+                'completed': False,
+                'created_at': datetime.now().isoformat(),
+            })
+            # Return the task data with the Firestore document ID
+            return {**task_data, 'id': new_task[1].id}
+        except Exception as e:
+            print("Error adding task:", e)
+            return None
+
+    def get_user_tasks(self, user_id):
+        """Retrieve all tasks for a specific user."""
+        try:
+            tasks_ref = self.db.collection('users').document(user_id).collection('tasks')
+            tasks = tasks_ref.stream()
+            return [{**task.to_dict(), 'id': task.id} for task in tasks]
+        except Exception as e:
+            print("Error retrieving tasks:", e)
+            return []
+
+    def update_task(self, user_id, task_id, updates):
+        """Update a specific task for a user."""
+        try:
+            task_ref = self.db.collection('users').document(user_id).collection('tasks').document(task_id)
+            task_ref.update(updates)
+            return True
+        except Exception as e:
+            print("Error updating task:", e)
+            return False
+
+    def delete_task(self, user_id, task_id):
+        """Delete a specific task for a user."""
+        try:
+            task_ref = self.db.collection('users').document(user_id).collection('tasks').document(task_id)
+            task_ref.delete()
+            return True
+        except Exception as e:
+            print("Error deleting task:", e)
+            return False
+        
 
