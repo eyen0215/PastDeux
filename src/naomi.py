@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import os
 from typing import List, Tuple
+from henry import Database
 
 class TaskMonitor:
     def __init__(self, email_address: str, sender_email: str, sender_password: str, openai_api_key: str):
@@ -19,6 +20,7 @@ class TaskMonitor:
             sender_password (str): Sender email password
             openai_api_key (str): OpenAI API key
         """
+        self.D = Database()
         load_dotenv()
         self.email_address = email_address
         self.sender_email = sender_email
@@ -26,7 +28,7 @@ class TaskMonitor:
         self.tasks = []  # List of [task_name, category, due_datetime]
         self.client = OpenAI(api_key=openai_api_key)
 
-    def add_task(self, task_name: str, category: str, due_date: str, due_time: str) -> None:
+    def add_task(self, task_name: str, category: str, due_date: str, due_time: str, user_ID: str, task_ID: str) -> None:
         """
         Add a new task to the monitor
         
@@ -37,7 +39,7 @@ class TaskMonitor:
             due_time (str): Due time in format 'HH:MM'
         """
         due_datetime = datetime.datetime.strptime(f"{due_date} {due_time}", "%Y-%m-%d %H:%M")
-        self.tasks.append([task_name, category, due_datetime])
+        self.tasks.append([task_name, category, due_datetime, user_ID, task_ID])
 
     def get_ai_roast(self, task_name: str, category: str) -> str:
         """
@@ -51,7 +53,7 @@ class TaskMonitor:
             str: AI-generated roast message with solutions
         """
 
-        if category == "assignment":
+        if category == "Homework":
             prompt = (
                 f"I missed - {task_name} ({category}). "
                 "Roast me really badly based on me missing the event. "
@@ -67,14 +69,14 @@ class TaskMonitor:
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful but sarcastic assistant."},
+                {"role": "system", "content": "You are a helpful but sarcastic and little mean assistant."},
                 {"role": "user", "content": prompt}
             ]
         )
         
         return response.choices[0].message.content
 
-    def send_email(self, task_name: str, message: str) -> None:
+    def send_email(self, task_name: str, message: str, user_ID: str, task_ID: str) -> None:
         """
         Send an email about the missed task
         
@@ -97,6 +99,8 @@ class TaskMonitor:
             server.send_message(msg)
             server.quit()
             print(f"Email sent for missed task: {task_name}")
+            self.D.set_overdue(user_ID, task_ID)
+            print("Task set to overdue")
         except Exception as e:
             print(f"Error sending email: {e}")
 
@@ -129,6 +133,17 @@ class TaskMonitor:
         """
         try:
             while True:
+                self.tasks.clear()
+                L = self.D.get_calendar()
+                for single_task in L:
+                    monitor.add_task(
+                    task_name=single_task[0],
+                    category=single_task[1],
+                    due_date=single_task[2],
+                    due_time=single_task[3],
+                    user_ID=single_task[4],
+                    task_ID=single_task[5]
+                )
                 self.check_tasks()
                 time.sleep(60)  # Wait for 1 minute
         except KeyboardInterrupt:
@@ -142,12 +157,12 @@ if __name__ == "__main__":
         email_address="naomi.chirawala@gmail.com",
         sender_email="naomichirawala.spam@gmail.com",
         sender_password=os.getenv("SEND_PASSWORD"),  # Use app-specific password for Gmail
-        #sender_password="fnudjpdqhqnvmrdo",  # Use app-specific password for Gmail
         openai_api_key=os.getenv("OPENAI_API_KEY")
     )
 
     # Add some sample tasks
-    monitor.add_task(
+   
+    '''monitor.add_task(
         task_name="math hw",
         category="assignment",
         due_date="2024-10-26",
@@ -159,7 +174,7 @@ if __name__ == "__main__":
         category="chores",
         due_date="2024-10-27",
         due_time="00:00"
-    )
+    )'''
 
     # Start monitoring
     monitor.run()
