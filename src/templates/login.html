@@ -1,0 +1,28 @@
+<!-- templates/login.html -->
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto text-center">
+    <h1 class="text-4xl font-bold text-gray-800 mb-8">Login to PastDue</h1>
+    <form action="{{ url_for('login') }}" method="POST" class="space-y-4">
+        <div>
+            <label for="email" class="block text-left mb-1">Email:</label>
+            <input type="email" name="email" id="email" required class="border border-gray-300 px-4 py-2 w-full rounded">
+        </div>
+        <div>
+            <label for="password" class="block text-left mb-1">Password:</label>
+            <input type="password" name="password" id="password" required class="border border-gray-300 px-4 py-2 w-full rounded">
+        </div>
+        <button type="submit" class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition">
+            Login
+        </button>
+    </form>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <p class="mt-4 text-gray-600">
+        Don't have an account? <a href="#" class="text-blue-500">Sign up</a>
+    </p>
+</div>
+{% endblock %}
