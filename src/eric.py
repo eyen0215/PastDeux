@@ -26,6 +26,29 @@ def get_month_calendar(year, month):
 def get_tasks_for_date(date_str):
     return [task for task in tasks if task['due_date'].split('T')[0] == date_str]
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        # Basic server-side validation
+        if len(password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters long'}), 400
+            
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            return jsonify({'error': 'Invalid email format'}), 400
+            
+        # Here you would typically store the user credentials
+        print(f"New signup - Email: {email}, Password: {password}")
+        
+        # For now, just log them in like the login route
+        session['logged_in'] = True
+        return redirect(url_for('calendar_view'))
+        
+    return render_template('signup.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None

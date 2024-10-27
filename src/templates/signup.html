@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto text-center">
+    <h1 class="text-4xl font-bold text-gray-800 mb-8">Sign Up for PastDue</h1>
+    <form action="{{ url_for('signup') }}" method="POST" class="space-y-4" id="signupForm">
+        <div>
+            <label for="email" class="block text-left mb-1">Email:</label>
+            <input type="email" name="email" id="email" required 
+                   class="border border-gray-300 px-4 py-2 w-full rounded"
+                   pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+            <span id="emailError" class="text-red-500 text-sm hidden text-left block"></span>
+        </div>
+        <div>
+            <label for="password" class="block text-left mb-1">Password:</label>
+            <input type="password" name="password" id="password" required 
+                   class="border border-gray-300 px-4 py-2 w-full rounded"
+                   minlength="6">
+            <p class="text-gray-500 text-sm text-left mt-1">Password must be at least 6 characters long</p>
+            <span id="passwordError" class="text-red-500 text-sm hidden text-left block"></span>
+        </div>
+        <button type="submit" class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition">
+            Sign Up
+        </button>
+    </form>
+    <p class="mt-4 text-gray-600">
+        Already have an account? <a href="{{ url_for('login') }}" class="text-blue-500">Login</a>
+    </p>
+</div>
+
+<script>
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Reset error messages
+    document.getElementById('emailError').classList.add('hidden');
+    document.getElementById('passwordError').classList.add('hidden');
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    // Email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+        const emailError = document.getElementById('emailError');
+        emailError.textContent = 'Please enter a valid email address';
+        emailError.classList.remove('hidden');
+        return;
+    }
+    
+    // Password validation
+    if (password.length < 6) {
+        const passwordError = document.getElementById('passwordError');
+        passwordError.textContent = 'Password must be at least 6 characters long';
+        passwordError.classList.remove('hidden');
+        return;
+    }
+    
+    // If validation passes, handle the signup
+    handleSignup(email, password);
+});
+
+function handleSignup(email, password) {
+    // You can add your signup logic here
+    console.log('Signup attempted with:', { email, password });
+    
+    // For now, just redirect to calendar view
+    window.location.href = "{{ url_for('calendar_view') }}";
+}
+</script>
+{% endblock %}
