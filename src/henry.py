@@ -82,6 +82,7 @@ class Database:
                 'color': task_data['color'],
                 'completed': False,
                 'created_at': datetime.now().isoformat(),
+                'overdue': task_data['overdue']
             })
             # Return the task data with the Firestore document ID
             return {**task_data, 'id': new_task[1].id}
@@ -107,10 +108,10 @@ class Database:
             task_dict = [{**task.to_dict(), 'id': task.id} for task in tasks]
             task_list = []
             for task in task_dict:
-                if task['completed'] == True:
+                if task['completed'] == True or task['overdue'] == True:
                     continue
                 due_date, due_time = task['due_date'].split('T')
-                task_list.append([task['description'], task['type'], due_date, due_time])
+                task_list.append([task['description'], task['type'], due_date, due_time, user_id, task['id']])
             return task_list
         except Exception as e:
             print("Error retrieving tasks:", e)
@@ -135,5 +136,9 @@ class Database:
         except Exception as e:
             print("Error deleting task:", e)
             return False
+    
+    def set_overdue(self, user_id, task_id):
+        """Set a task as overdue."""
+        return self.update_task(user_id, task_id, {'overdue': True})
         
 

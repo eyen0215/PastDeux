@@ -95,6 +95,8 @@ def logout():
 
 @app.route('/')
 def home():
+    if session.get('user_id'):
+        return redirect(url_for('calendar_view'))
     return render_template('home.html', logged_in=session.get('user_id') is not None)
 
 @app.route('/calendar')
@@ -163,7 +165,8 @@ def add_task():
             'description': description,
             'due_date': due_date,
             'color': color,
-            'completed': False
+            'completed': False,
+            'overdue': False
         }
 
         new_task = database.add_task(user_id, task_data)
