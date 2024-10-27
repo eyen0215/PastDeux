@@ -41,12 +41,24 @@ class Database:
         self.firebase = pyrebase.initialize_app(self.firebase_config)
         self.auth = self.firebase.auth()
 
+        self.user_ids = []
+        try:
+            users_ref = self.db.collection('users')
+            users = users_ref.stream()
+            self.user_ids = [user.id for user in users]
+        except Exception as e:
+            print("Error retrieving user IDs:", e)
+        
+
+
+
 
     # Firestore functions
     def add_user_to_firestore(self, user_data):
         """Add user information to Firestore."""
         users_ref = self.db.collection('users')
         users_ref.document(user_data['uid']).set(user_data)
+        self.user_ids.append(user_data['uid'])
 
     def authenticate_user(self, email, password):
         """Authenticate user with email and password."""
@@ -143,12 +155,7 @@ class Database:
     
     def get_user_ids(self):
         """Retrieve all user IDs from Firestore."""
-        try:
-            users_ref = self.db.collection('users')
-            users = users_ref.stream()
-            return [user.id for user in users]
-        except Exception as e:
-            print("Error retrieving user IDs:", e)
-            return []
+        return self.user_ids
+        
         
 
