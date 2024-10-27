@@ -1,0 +1,10 @@
+runtime: python39
+entrypoint: gunicorn -b :$PORT src.eric:app
+
+instance_class: F1
+
+includes:
+- src/.env
+
+env_variables:
+  FIREBASE_CREDENTIALS: ${FIREBASE_CREDENTIALS}
