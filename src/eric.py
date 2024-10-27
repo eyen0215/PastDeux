@@ -2,9 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 from datetime import datetime
 import calendar
 from henry import Database
+import re
+import secrets
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 app = Flask(__name__)
-
+app.secret_key = os.environ.get('FLASK_SECRET_KEY')  
 # Temporary storage until Firebase integration
 tasks = []
 database = Database()
@@ -25,12 +30,16 @@ def get_month_calendar(year, month):
 
 def get_tasks_for_date(date_str):
     return [task for task in tasks if task['due_date'].split('T')[0] == date_str]
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        
+        # Print credentials for debugging/storage
+        print("Signup credentials received:")
+        print(f"Email: {email}")
+        print(f"Password: {password}")
         
         # Basic server-side validation
         if len(password) < 6:
@@ -40,15 +49,16 @@ def signup():
         if not re.match(email_regex, email):
             return jsonify({'error': 'Invalid email format'}), 400
             
-        # Here you would typically store the user credentials
-        print(f"New signup - Email: {email}, Password: {password}")
+        # Here you would save the credentials to your database
+        # For now, just printing them
         
-        # For now, just log them in like the login route
-        session['logged_in'] = True
+        # Log them in
+        #session['logged_in'] = True
+        
+        # Instead of returning JSON, redirect directly
         return redirect(url_for('calendar_view'))
         
     return render_template('signup.html')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None

@@ -56,16 +56,8 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
         return;
     }
     
-    // If validation passes, handle the signup
-    handleSignup(email, password);
+    // If validation passes, submit the form normally
+    this.submit();
 });
-
-function handleSignup(email, password) {
-    // You can add your signup logic here
-    console.log('Signup attempted with:', { email, password });
-    
-    // For now, just redirect to calendar view
-    window.location.href = "{{ url_for('calendar_view') }}";
-}
 </script>
 {% endblock %}
