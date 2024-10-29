@@ -28,15 +28,22 @@
                 {% for day in week %}
                 {% if day != 0 %}
                 {% set date = '%04d-%02d-%02d'|format(year, month, day) %}
+                {% set day_tasks = get_tasks_for_date(date) %}
+                {% set has_overdue = false %}
+                {% for task in day_tasks %}
+                    {% if task.overdue %}
+                        {% set has_overdue = true %}
+                    {% endif %}
+                {% endfor %}
                 <a href="{{ url_for('day_view', date=date) }}" 
-                   class="calendar-day bg-white p-2 hover:bg-gray-50 transition-colors">
+                   class="calendar-day bg-white p-2 hover:bg-gray-50 transition-colors {% if has_overdue %}has-overdue{% endif %}">
                     <div class="flex justify-between items-start">
                         <span class="text-sm {% if loop.index > 5 %}text-red-500{% endif %}">{{ day }}</span>
-                        {% set day_tasks = get_tasks_for_date(date) %}
                         {% if day_tasks %}
                         <div class="flex flex-wrap gap-1 mt-1">
                             {% for task in day_tasks[:3] %}
-                            <div class="task-dot" style="background-color: {{ task.color }}"></div>
+                            <div class="task-dot {% if task.overdue %}task-dot-overdue{% endif %}" 
+                                 style="background-color: {{ task.color }}"></div>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -61,7 +68,7 @@
                 {% set sorted_tasks = tasks|sort(attribute='due_date') %}
                 {% for task in sorted_tasks %}
                 {% if not task.completed %}
-                <div class="task-item p-3 border rounded-lg hover:bg-gray-50"
+                <div class="task-item p-3 border rounded-lg hover:bg-gray-50 {% if task.overdue %}task-overdue{% endif %}"
                     style="border-left-width: 4px; border-left-color: {{ task.color }}">
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-sm font-medium" style="color: {{ task.color }}">
@@ -84,6 +91,9 @@
                                 {{ task_date }} at {{ task_time }}
                             {% endif %}
                         </span>
+                        {% if task.overdue %}
+                        <span class="ml-2 text-red-500">OVERDUE</span>
+                        {% endif %}
                     </div>
                 </div>
                 {% endif %}
@@ -127,10 +137,22 @@
 
 <style>
 .calendar-day { 
-    min-height: 100px; 
+    min-height: 100px;
+    position: relative;
 }
 .calendar-day:hover { 
     background-color: #f3f4f6; 
+}
+.has-overdue::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 12px 12px 0;
+    border-color: transparent #ef4444 transparent transparent;
 }
 .task-dot {
     width: 8px;
@@ -138,12 +160,19 @@
     border-radius: 50%;
     margin: 1px;
 }
-/* Add smooth transitions */
+.task-dot-overdue {
+    outline: 1px solid #ef4444;
+    outline-offset: 1px;
+}
 .task-item {
     transition: all 0.2s ease-in-out;
 }
 .task-item:hover {
     transform: translateX(2px);
+}
+.task-overdue {
+    background-color: #fef2f2;
+    border-color: #ef4444;
 }
 </style>
 
